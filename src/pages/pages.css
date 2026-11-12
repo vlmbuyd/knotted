@@ -79,3 +79,5 @@
 .flow-node { position: absolute; display: flex; flex-direction: column; gap: 8px; font-size: 13px; text-align: left; }
 .flow-node__img { border-radius: 4px; outline-offset: 3px; }
 .flow-node[data-proposed="true"] .flow-node__img { outline: 1.5px dashed var(--selection); }
+.lp-head { height: 48px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.lp-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }

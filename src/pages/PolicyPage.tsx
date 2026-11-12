@@ -42,7 +42,7 @@ export default function PolicyPage() {
       <TopGnb />
       <main className="page-body">
         <section className="k-panel lpanel">
-          <div className="k-panel__head" style={{ height: 44, borderBottom: 0 }}><span className="k-label">영역</span></div>
+          <div className="k-panel__head lp-head"><span className="lp-title">영역</span></div>
           <div className="k-panel__body" style={{ padding: 8 }}>
             {AREAS.map(([a, n]) => (
               <button key={a} className="lp-item" style={{ paddingLeft: 10 }} data-active={area === a} onClick={() => setArea(a)}>

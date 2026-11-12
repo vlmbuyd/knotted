@@ -76,3 +76,6 @@
 .draft-new { animation: flash 1.6s ease-out; }
 @keyframes flash { from { background: var(--selection-soft); } to { background: transparent; } }
 .el-edit { position: fixed; z-index: 32; background: #fff; border: 1.5px dashed var(--selection); border-radius: 4px; padding: 0 3px; outline: none; }
+.lp-head { height: 48px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.lp-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.lp-page { font-size: 13px; color: var(--text-secondary); }

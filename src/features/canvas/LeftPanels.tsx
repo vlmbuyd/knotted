@@ -11,8 +11,8 @@ export function PagesPanel({ groups, focus, onFocus, title = "페이지" }: { gr
   const setLeftOpen = useUi((s) => s.setLeftOpen);
   return (
     <section className="k-panel lpanel">
-      <div className="k-panel__head" style={{ height: 44, borderBottom: 0 }}>
-        <span className="k-label">{title}</span>
+      <div className="k-panel__head lp-head">
+        <span className="lp-title">{title}</span>
         <button className="icon-btn" style={{ marginLeft: "auto" }} onClick={() => setLeftOpen(false)} title="패널 접기"><PanelLeftClose size={16} /></button>
       </div>
       <div className="k-panel__body">
@@ -49,8 +49,8 @@ export function DraftPanel({ onFocus }: { onFocus: (id: ScreenId) => void }) {
 
   return (
     <section className="k-panel lpanel" style={{ width: 280 }}>
-      <div className="k-panel__head" style={{ height: 44, borderBottom: 0 }}>
-        <span className="k-label">제안서 초안</span>
+      <div className="k-panel__head lp-head">
+        <span className="lp-title">제안서 초안</span>
         <span className="k-faint" style={{ marginLeft: "auto", fontSize: 11 }}>요구사항마다 시안이 함께 붙어요</span>
         <button className="icon-btn" onClick={() => setLeftOpen(false)} title="패널 접기"><PanelLeftClose size={16} /></button>
       </div>

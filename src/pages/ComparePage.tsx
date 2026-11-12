@@ -64,7 +64,7 @@ export default function ComparePage() {
       <ProposalGnb title={`${PROPOSAL.title}, 화면 비교`} />
       <main className="page-body">
         <section className="k-panel lpanel">
-          <div className="k-panel__head" style={{ height: 44, borderBottom: 0 }}><span className="k-label">화면 {SCREENS.length}개</span></div>
+          <div className="k-panel__head lp-head"><span className="lp-title">화면 {SCREENS.length}개</span></div>
           <div className="k-panel__body" style={{ padding: 8 }}>
             {SCREENS.map((s, i) => (
               <button key={s.id} className="lp-item" style={{ paddingLeft: 10 }} data-active={i === idx} onClick={() => goto(i)}>

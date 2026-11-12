@@ -52,7 +52,7 @@ export default function UserFlowPage() {
       <TopGnb />
       <main className="page-body">
         <section className="k-panel lpanel">
-          <div className="k-panel__head" style={{ height: 44, borderBottom: 0 }}><span className="k-label">플로우</span></div>
+          <div className="k-panel__head lp-head"><span className="lp-title">플로우</span></div>
           <div className="k-panel__body" style={{ padding: 8 }}>
             {FLOWS.map(([f, n]) => (
               <button key={f} className="lp-item" style={{ paddingLeft: 10 }} data-active={flow === f} onClick={() => setFlow(f)}>

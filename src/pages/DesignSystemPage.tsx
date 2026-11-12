@@ -57,7 +57,7 @@ export default function DesignSystemPage() {
       <TopGnb />
       <main className="page-body">
         <section className="k-panel lpanel">
-          <div className="k-panel__head" style={{ height: 44, borderBottom: 0 }}><span className="k-label">컴포넌트 75</span></div>
+          <div className="k-panel__head lp-head"><span className="lp-title">컴포넌트 75</span></div>
           <div className="lp-search"><Search size={14} className="k-faint" /><input placeholder="검색" value={q} onChange={(e) => setQ(e.target.value)} /></div>
           <div className="k-panel__body" style={{ padding: "0 8px 8px" }}>
             {groups.map((g) => {
