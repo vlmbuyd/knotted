@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Knotted 설계</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --card: #ffffff;
+    --line: #e4e2dd;
+    --text: #1f1e1c;
+    --sub: #5e5c57;
+    --faint: #9a978f;
+    --knotted: #ff6b2c;
+    --knotted-soft: #fff1ea;
+    --notion: #37352f;
+    --notion-soft: #f1f0ee;
+    --git: #6e56cf;
+    --git-soft: #f1eefc;
+    --preview: #2f6f82;
+    --preview-soft: #e8f2f5;
+    --ok: #2e9d62;
+    --ok-soft: #e8f6ee;
+    --warn: #b7791f;
+    --warn-soft: #fbf3e4;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: "Pretendard Variable", Pretendard, -apple-system, sans-serif; font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 48px 24px 96px; }
+  header.top { margin-bottom: 40px; }
+  .eyebrow { font-size: 13px; font-weight: 600; color: var(--knotted); letter-spacing: 0.04em; }
+  h1 { font-size: 34px; margin: 6px 0 10px; letter-spacing: -0.02em; }
+  .lead { font-size: 18px; color: var(--sub); margin: 0; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+  nav.toc a { font-size: 13px; color: var(--sub); text-decoration: none; padding: 5px 11px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); }
+  nav.toc a:hover { color: var(--text); border-color: #c9c6bf; }
+  section { margin-top: 56px; }
+  h2 { font-size: 24px; margin: 0 0 6px; letter-spacing: -0.01em; }
+  h2 .num { color: var(--knotted); margin-right: 8px; }
+  .desc { color: var(--sub); margin: 0 0 18px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
+  .card + .card { margin-top: 16px; }
+  .grid { display: grid; gap: 14px; }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g2 { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 760px) { .g3, .g2 { grid-template-columns: 1fr; } }
+  .chip { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; }
+  .chip.ok { background: var(--ok-soft); color: var(--ok); }
+  .chip.open { background: var(--warn-soft); color: var(--warn); }
+  .chip.k { background: var(--knotted-soft); color: var(--knotted); }
+  .decision { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+  .decision b { display: block; font-size: 15px; margin: 6px 0 2px; }
+  .decision span.d { color: var(--sub); font-size: 14px; }
+  .decision.open { border-style: dashed; border-color: #e3c58e; }
+  svg { width: 100%; height: auto; display: block; }
+  svg text { font-family: "Pretendard Variable", Pretendard, sans-serif; }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  th, td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 13px; color: var(--faint); font-weight: 600; }
+  td.before { color: var(--faint); text-decoration: line-through; text-decoration-color: #d3d0c8; }
+  pre { margin: 0; font-family: "SF Mono", Menlo, monospace; font-size: 13.5px; line-height: 1.7; background: #1f1e1c; color: #e9e7e2; padding: 18px 20px; border-radius: 12px; overflow-x: auto; }
+  pre .c { color: #9a978f; }
+  pre .k { color: #ffb08f; }
+  .proposal { border-left: 3px solid var(--knotted); padding: 2px 0 2px 14px; margin-top: 12px; }
+  .proposal b { color: var(--knotted); }
+  .steps { counter-reset: s; list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .steps li { counter-increment: s; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 14px 56px; position: relative; }
+  .steps li::before { content: counter(s); position: absolute; left: 16px; top: 13px; width: 26px; height: 26px; border-radius: 50%; background: var(--knotted); color: #fff; font-weight: 700; font-size: 13px; display: grid; place-items: center; }
+  .steps li small { display: block; color: var(--sub); }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--sub); margin-top: 12px; }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  footer { margin-top: 72px; font-size: 13px; color: var(--faint); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">KNOTTED 설계, 2026-11-12 회의 반영</div>
+  <h1>기획과 시안을 코드로 함께 만들고, 확정까지 받는 Knot 안의 도구</h1>
+  <p class="lead">같은 화면을 Figma와 코드에서 두 번 만들던 문제를, 시안을 처음부터 Knot 코드로 만드는 방식으로 없앤다.</p>
+  <nav class="toc">
+    <a href="#s1">1. 정한 것</a><a href="#s2">2. 시스템 구조</a><a href="#s3">3. 끼어드는 시점</a><a href="#s4">4. 지금과 비교</a>
+    <a href="#s5">5. 요소 정보가 나오는 길</a><a href="#s6">6. 무엇을 어디에</a><a href="#s7">7. 열린 문제와 제안</a><a href="#s8">8. 고민한 것</a><a href="#s9">9. 폴더 구조</a><a href="#s10">10. 다음 순서</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section id="s1">
+  <h2><span class="num">1</span>정한 것</h2>
+  <p class="desc">회의에서 6개를 정했고, 3개는 아직 열려 있다.</p>
+  <div class="grid g3">
+    <div class="decision"><span class="chip ok">확정</span><b>Knot 저장소 안에 둔다</b><span class="d">frontend/knotted. 하네스를 쓰려면 Knot 코드와 함께 있어야 한다</span></div>
+    <div class="decision"><span class="chip ok">확정</span><b>디자인 정본은 코드</b><span class="d">Figma가 아니라 실제 컴포넌트가 디자인이다</span></div>
+    <div class="decision"><span class="chip ok">확정</span><b>검토 문서 정본은 노션</b><span class="d">기능 요구사항 검토 DB. 어느 브랜치에서 열어도 같은 문서</span></div>
+    <div class="decision"><span class="chip ok">확정</span><b>시안은 제안 브랜치의 코드</b><span class="d">충돌과 버전 관리는 브랜치가 맡는다</span></div>
+    <div class="decision"><span class="chip ok">확정</span><b>범위는 프론트와 디자인</b><span class="d">백엔드는 지금처럼 노션 검토 문서로</span></div>
+    <div class="decision"><span class="chip ok">확정</span><b>끝나면 PR 자동 생성</b><span class="d">개발자는 PR에서 로직과 테스트를 본다</span></div>
+    <div class="decision open"><span class="chip open">열림</span><b>시안을 어떻게 보여 줄까</b><span class="d">볼 때마다 체크아웃하면 안 된다 → 7절</span></div>
+    <div class="decision open"><span class="chip open">열림</span><b>PR 승인 병목</b><span class="d">도구를 고칠 때마다 승인 대기 → 7절</span></div>
+    <div class="decision open"><span class="chip open">열림</span><b>배포 형태</b><span class="d">웹, 데스크톱, 스킬 → 7절</span></div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="s2">
+  <h2><span class="num">2</span>시스템 구조</h2>
+  <p class="desc">세 곳으로 나뉜다. 팀원 컴퓨터에서 만들고, Knot 저장소에 코드가 쌓이고, 바깥 서비스에서 검토한다. 숫자는 일이 흐르는 순서다.</p>
+  <div class="card">
+  <svg viewBox="0 0 1000 600" role="img" aria-label="Knotted 시스템 구조도">
+    <defs>
+      <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8a877f"/></marker>
+      <marker id="ahk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ff6b2c"/></marker>
+    </defs>
+    <!-- zones -->
+    <rect x="10" y="10" width="330" height="580" rx="18" fill="#fff7f2" stroke="#f3d6c8"/>
+    <text x="30" y="42" font-size="17" font-weight="700" fill="#1f1e1c">팀원 컴퓨터</text>
+    <text x="30" y="62" font-size="13" fill="#9a978f">만드는 곳</text>
+    <rect x="355" y="10" width="290" height="580" rx="18" fill="#f5f4f9" stroke="#dcd7ee"/>
+    <text x="375" y="42" font-size="17" font-weight="700" fill="#1f1e1c">Knot 저장소</text>
+    <text x="375" y="62" font-size="13" fill="#9a978f">코드가 쌓이는 곳 (정본)</text>
+    <rect x="660" y="10" width="330" height="580" rx="18" fill="#f4f6f6" stroke="#d3e2e6"/>
+    <text x="680" y="42" font-size="17" font-weight="700" fill="#1f1e1c">바깥 서비스</text>
+    <text x="680" y="62" font-size="13" fill="#9a978f">검토하는 곳</text>
+
+    <!-- left boxes -->
+    <rect x="30" y="85" width="290" height="190" rx="12" fill="#fff" stroke="#ff6b2c" stroke-width="1.6"/>
+    <text x="46" y="112" font-size="15.5" font-weight="700" fill="#ff6b2c">Knotted 화면 (브라우저)</text>
+    <text x="46" y="134" font-size="13.5" fill="#5e5c57">제안함, 캔버스, 채팅, 요소 툴바</text>
+    <rect x="46" y="148" width="258" height="112" rx="8" fill="#faf9f7" stroke="#e4e2dd" stroke-dasharray="4 3"/>
+    <text x="60" y="172" font-size="14" font-weight="600" fill="#1f1e1c">iframe: Knot 시안 화면</text>
+    <text x="60" y="194" font-size="13" fill="#5e5c57">실제 컴포넌트 + MSW 목 데이터</text>
+    <text x="60" y="214" font-size="13" fill="#5e5c57">상태마다 화면 하나</text>
+    <text x="60" y="242" font-size="12.5" fill="#9a978f">요소를 누르면 이름, 파일:줄이 뜬다</text>
+
+    <rect x="30" y="300" width="290" height="96" rx="12" fill="#fff" stroke="#e4e2dd"/>
+    <text x="46" y="328" font-size="15.5" font-weight="700" fill="#1f1e1c">로컬 서버</text>
+    <text x="46" y="350" font-size="13.5" fill="#5e5c57">pnpm knotted</text>
+    <text x="46" y="372" font-size="13" fill="#5e5c57">시안 빌드, 노션 읽기, 브랜치와 PR</text>
+
+    <rect x="30" y="420" width="290" height="150" rx="12" fill="#fff" stroke="#e4e2dd"/>
+    <text x="46" y="448" font-size="15.5" font-weight="700" fill="#1f1e1c">Claude Code</text>
+    <text x="46" y="470" font-size="13.5" fill="#5e5c57">팀원 각자의 에이전트</text>
+    <rect x="46" y="486" width="258" height="66" rx="8" fill="#f5f4f9" stroke="#dcd7ee"/>
+    <text x="60" y="512" font-size="13.5" font-weight="600" fill="#1f1e1c">knot-feature 하네스</text>
+    <text x="60" y="534" font-size="12.5" fill="#5e5c57">기획 규칙, 컴포넌트 이름, 반영 순서</text>
+
+    <!-- middle boxes -->
+    <rect x="375" y="85" width="250" height="100" rx="12" fill="#fff" stroke="#e4e2dd"/>
+    <text x="391" y="113" font-size="15" font-weight="700" fill="#1f1e1c">frontend/src</text>
+    <text x="391" y="136" font-size="13" fill="#5e5c57">Knot 컴포넌트, 페이지</text>
+    <text x="391" y="157" font-size="13" fill="#5e5c57">MSW 핸들러</text>
+
+    <rect x="375" y="205" width="250" height="100" rx="12" fill="#fff" stroke="#ff6b2c" stroke-width="1.6"/>
+    <text x="391" y="233" font-size="15" font-weight="700" fill="#ff6b2c">frontend/knotted</text>
+    <text x="391" y="256" font-size="13" fill="#5e5c57">도구 코드: shell, runtime,</text>
+    <text x="391" y="277" font-size="13" fill="#5e5c57">babel 플러그인, server</text>
+
+    <rect x="375" y="325" width="250" height="120" rx="12" fill="#fff" stroke="#6e56cf" stroke-width="1.4" stroke-dasharray="5 4"/>
+    <text x="391" y="353" font-size="15" font-weight="700" fill="#6e56cf">제안 브랜치</text>
+    <text x="391" y="376" font-size="13" fill="#5e5c57">fe/feature/#번호</text>
+    <text x="391" y="398" font-size="13" fill="#5e5c57">ProfileMenu.draft.tsx (시안)</text>
+    <text x="391" y="420" font-size="13" fill="#5e5c57">확정 뒤 로직, 테스트도 여기에</text>
+
+    <rect x="375" y="465" width="250" height="100" rx="12" fill="#fff" stroke="#e4e2dd"/>
+    <text x="391" y="493" font-size="15" font-weight="700" fill="#1f1e1c">develop</text>
+    <text x="391" y="516" font-size="13" fill="#5e5c57">머지되면 지금 화면이 된다</text>
+    <text x="391" y="537" font-size="13" fill="#5e5c57">dev.knoted.kr 배포</text>
+
+    <!-- right boxes -->
+    <rect x="680" y="85" width="290" height="120" rx="12" fill="#fff" stroke="#37352f" stroke-width="1.4"/>
+    <text x="696" y="113" font-size="15.5" font-weight="700" fill="#37352f">노션 검토 DB</text>
+    <text x="696" y="136" font-size="13" fill="#5e5c57">검토 문서 정본 (기획 + 시안 링크)</text>
+    <text x="696" y="157" font-size="13" fill="#5e5c57">상태, 컨펌한 사람, 날짜</text>
+    <text x="696" y="185" font-size="12.5" fill="#9a978f">백엔드 제안도 여기서 그대로</text>
+
+    <rect x="680" y="225" width="290" height="100" rx="12" fill="#fff" stroke="#6e56cf" stroke-width="1.4"/>
+    <text x="696" y="253" font-size="15.5" font-weight="700" fill="#6e56cf">GitHub PR</text>
+    <text x="696" y="276" font-size="13" fill="#5e5c57">작업이 끝나면 자동 생성</text>
+    <text x="696" y="297" font-size="13" fill="#5e5c57">FE 팀원이 로직과 테스트 승인</text>
+
+    <rect x="680" y="345" width="290" height="100" rx="12" fill="#fff" stroke="#2f6f82" stroke-width="1.4"/>
+    <text x="696" y="373" font-size="15.5" font-weight="700" fill="#2f6f82">미리보기 주소</text>
+    <text x="696" y="396" font-size="13" fill="#5e5c57">PR마다 하나 (Cloudflare Pages)</text>
+    <text x="696" y="417" font-size="13" fill="#5e5c57">체크아웃 없이 시안을 눌러 본다</text>
+
+    <rect x="680" y="465" width="290" height="100" rx="12" fill="#fff" stroke="#e4e2dd"/>
+    <circle cx="712" cy="515" r="18" fill="#f1f0ee"/><text x="712" y="520" font-size="14" font-weight="700" fill="#37352f" text-anchor="middle">유</text>
+    <text x="742" y="505" font-size="15.5" font-weight="700" fill="#1f1e1c">유월 (컨펌 담당)</text>
+    <text x="742" y="528" font-size="13" fill="#5e5c57">기획은 노션, 시안은 미리보기</text>
+    <text x="742" y="549" font-size="13" fill="#5e5c57">확정, 보류, 반려</text>
+
+    <!-- arrows -->
+    <!-- 1 채팅 -->
+    <path d="M175 420 L175 396" stroke="#ff6b2c" stroke-width="1.8" fill="none" marker-end="url(#ahk)"/>
+    <path d="M175 300 L175 276" stroke="#ff6b2c" stroke-width="1.8" fill="none" marker-end="url(#ahk)"/>
+    <!-- 2 claude -> branch -->
+    <path d="M320 470 C 350 470, 350 400, 373 395" stroke="#ff6b2c" stroke-width="1.8" fill="none" marker-end="url(#ahk)"/>
+    <!-- 3 repo -> local server -->
+    <path d="M375 255 C 345 265, 345 340, 322 345" stroke="#8a877f" stroke-width="1.5" fill="none" marker-end="url(#ah)"/>
+    <path d="M375 135 C 345 150, 345 330, 322 335" stroke="#8a877f" stroke-width="1.5" fill="none"/>
+    <!-- 4 claude -> notion -->
+    <path d="M320 555 C 420 590, 600 590, 652 560 L652 165 C 652 150, 660 145, 678 145" stroke="#8a877f" stroke-width="1.5" fill="none" stroke-dasharray="5 4" marker-end="url(#ah)"/>
+    <!-- 5 branch -> PR -->
+    <path d="M625 385 C 650 385, 655 280, 678 275" stroke="#6e56cf" stroke-width="1.6" fill="none" marker-end="url(#ah)"/>
+    <!-- 6 PR -> preview -->
+    <path d="M825 325 L825 343" stroke="#2f6f82" stroke-width="1.6" fill="none" marker-end="url(#ah)"/>
+    <!-- 7 yuwol -> preview & notion -->
+    <path d="M940 465 L940 447" stroke="#8a877f" stroke-width="1.5" fill="none" marker-end="url(#ah)"/>
+    <path d="M965 465 C 990 380, 990 230, 972 160" stroke="#8a877f" stroke-width="1.5" fill="none" marker-end="url(#ah)"/>
+    <!-- 8 PR -> develop -->
+    <path d="M700 325 C 660 420, 650 500, 627 510" stroke="#6e56cf" stroke-width="1.6" fill="none" stroke-dasharray="5 4" marker-end="url(#ah)"/>
+
+    <!-- step badges -->
+    <g font-size="12" font-weight="700" text-anchor="middle" fill="#fff">
+      <circle cx="195" cy="408" r="11" fill="#ff6b2c"/><text x="195" y="412">1</text>
+      <circle cx="350" cy="436" r="11" fill="#ff6b2c"/><text x="350" y="440">2</text>
+      <circle cx="343" cy="300" r="11" fill="#8a877f"/><text x="343" y="304">3</text>
+      <circle cx="652" cy="200" r="11" fill="#8a877f"/><text x="652" y="204">4</text>
+      <circle cx="655" cy="330" r="11" fill="#6e56cf"/><text x="655" y="334">5</text>
+      <circle cx="845" cy="335" r="11" fill="#2f6f82"/><text x="845" y="339">6</text>
+      <circle cx="958" cy="456" r="11" fill="#37352f"/><text x="958" y="460">7</text>
+      <circle cx="650" cy="470" r="11" fill="#6e56cf"/><text x="650" y="474">8</text>
+    </g>
+  </svg>
+  <div class="grid g2" style="margin-top:16px; font-size:14px; color:var(--sub)">
+    <div><b style="color:var(--text)">1</b> 채팅으로 기획하고 수정 요청을 보낸다 &nbsp; <b style="color:var(--text)">2</b> 에이전트가 시안을 코드로 쓴다<br><b style="color:var(--text)">3</b> 로컬 서버가 저장소 코드로 시안을 띄운다 &nbsp; <b style="color:var(--text)">4</b> 검토 문서를 노션에 쓴다</div>
+    <div><b style="color:var(--text)">5</b> push하면 PR이 생긴다 &nbsp; <b style="color:var(--text)">6</b> PR마다 미리보기가 배포된다<br><b style="color:var(--text)">7</b> 유월이 노션과 미리보기를 보고 결정한다 &nbsp; <b style="color:var(--text)">8</b> 승인되면 develop에 머지</div>
+  </div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+  <h2><span class="num">3</span>Knotted가 끼어드는 시점</h2>
+  <p class="desc">기능 요청부터 머지까지. 주황 구간이 Knotted에서 일어나는 일이고, 나머지는 지금 하네스 그대로다.</p>
+  <div class="card">
+  <svg viewBox="0 0 1000 560" role="img" aria-label="작업 흐름 스윔레인">
+    <defs>
+      <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8a877f"/></marker>
+    </defs>
+    <!-- lanes -->
+    <g font-size="14" font-weight="700" fill="#1f1e1c">
+      <rect x="0" y="40" width="1000" height="96" fill="#fbfbfa"/><text x="14" y="94">팀원</text>
+      <rect x="0" y="136" width="1000" height="110" fill="#ffffff"/><text x="14" y="187">에이전트</text><text x="14" y="206" font-size="11.5" font-weight="500" fill="#9a978f">Claude Code</text>
+      <rect x="0" y="246" width="1000" height="96" fill="#fbfbfa"/><text x="14" y="300">노션</text>
+      <rect x="0" y="342" width="1000" height="96" fill="#ffffff"/><text x="14" y="396">GitHub</text>
+      <rect x="0" y="438" width="1000" height="96" fill="#fbfbfa"/><text x="14" y="492">유월</text>
+    </g>
+    <line x1="92" y1="40" x2="92" y2="534" stroke="#e4e2dd"/>
+    <!-- knotted band -->
+    <rect x="100" y="10" width="452" height="530" rx="14" fill="#ff6b2c" fill-opacity="0.07" stroke="#ff6b2c" stroke-opacity="0.5" stroke-dasharray="6 5"/>
+    <text x="114" y="30" font-size="13.5" font-weight="700" fill="#ff6b2c">Knotted 구간: 기획과 시안을 함께</text>
+    <text x="580" y="30" font-size="13.5" font-weight="700" fill="#8a877f">지금 하네스 그대로</text>
+
+    <!-- boxes -->
+    <g font-size="13">
+      <rect x="110" y="62" width="120" height="52" rx="10" fill="#fff" stroke="#ff6b2c"/>
+      <text x="170" y="84" text-anchor="middle" font-weight="700">기능 요청</text><text x="170" y="102" text-anchor="middle" fill="#5e5c57">채팅에 한 줄</text>
+
+      <rect x="110" y="160" width="120" height="66" rx="10" fill="#fff" stroke="#ff6b2c"/>
+      <text x="170" y="184" text-anchor="middle" font-weight="700">기획 질문</text><text x="170" y="202" text-anchor="middle" fill="#5e5c57">요구사항이 바로</text><text x="170" y="218" text-anchor="middle" fill="#5e5c57">쌓인다</text>
+
+      <rect x="250" y="160" width="130" height="66" rx="10" fill="#fff" stroke="#ff6b2c"/>
+      <text x="315" y="184" text-anchor="middle" font-weight="700">시안을 코드로</text><text x="315" y="202" text-anchor="middle" fill="#5e5c57">요구사항마다</text><text x="315" y="218" text-anchor="middle" fill="#5e5c57">상태별 화면</text>
+
+      <rect x="250" y="62" width="130" height="52" rx="10" fill="#fff" stroke="#ff6b2c"/>
+      <text x="315" y="84" text-anchor="middle" font-weight="700">눌러 보며 수정</text><text x="315" y="102" text-anchor="middle" fill="#5e5c57">요소 툴바, 수정 요청</text>
+
+      <rect x="400" y="266" width="140" height="58" rx="10" fill="#fff" stroke="#37352f"/>
+      <text x="470" y="290" text-anchor="middle" font-weight="700">검토 문서</text><text x="470" y="308" text-anchor="middle" fill="#5e5c57">기획 + 미리보기 링크</text>
+
+      <rect x="250" y="362" width="130" height="58" rx="10" fill="#fff" stroke="#6e56cf"/>
+      <text x="315" y="386" text-anchor="middle" font-weight="700">Draft PR</text><text x="315" y="404" text-anchor="middle" fill="#5e5c57">미리보기 주소 생성</text>
+
+      <rect x="400" y="456" width="140" height="62" rx="10" fill="#fff" stroke="#37352f" stroke-width="1.6"/>
+      <text x="470" y="480" text-anchor="middle" font-weight="700">검토하고 결정</text><text x="470" y="499" text-anchor="middle" fill="#5e5c57">확정, 보류, 반려</text>
+
+      <rect x="575" y="266" width="120" height="58" rx="10" fill="#fff" stroke="#e4e2dd"/>
+      <text x="635" y="290" text-anchor="middle" font-weight="700">확정 기록</text><text x="635" y="308" text-anchor="middle" fill="#5e5c57">1차 컨펌</text>
+
+      <rect x="715" y="160" width="130" height="66" rx="10" fill="#fff" stroke="#e4e2dd"/>
+      <text x="780" y="184" text-anchor="middle" font-weight="700">반영</text><text x="780" y="202" text-anchor="middle" fill="#5e5c57">정본, QA 시트,</text><text x="780" y="218" text-anchor="middle" fill="#5e5c57">이슈</text>
+
+      <rect x="860" y="160" width="130" height="66" rx="10" fill="#fff" stroke="#e4e2dd"/>
+      <text x="925" y="184" text-anchor="middle" font-weight="700">로직, 테스트</text><text x="925" y="202" text-anchor="middle" fill="#5e5c57">같은 브랜치에서</text><text x="925" y="218" text-anchor="middle" fill="#5e5c57">시안에 더한다</text>
+
+      <rect x="860" y="362" width="130" height="58" rx="10" fill="#fff" stroke="#6e56cf"/>
+      <text x="925" y="386" text-anchor="middle" font-weight="700">PR 자동 생성</text><text x="925" y="404" text-anchor="middle" fill="#5e5c57">FE 승인 → 머지</text>
+    </g>
+    <!-- arrows -->
+    <g stroke="#8a877f" stroke-width="1.5" fill="none" marker-end="url(#a2)">
+      <path d="M170 114 L170 158"/>
+      <path d="M230 193 L248 193"/>
+      <path d="M315 160 L315 116"/>
+      <path d="M380 205 C 430 210, 470 230, 470 264"/>
+      <path d="M315 226 L315 360"/>
+      <path d="M380 400 C 420 410, 450 430, 462 454" stroke-dasharray="4 3"/>
+      <path d="M470 324 L470 454"/>
+      <path d="M540 487 C 600 470, 635 380, 635 326"/>
+      <path d="M695 280 C 720 270, 760 250, 780 228"/>
+      <path d="M845 193 L858 193"/>
+      <path d="M925 226 L925 360"/>
+    </g>
+    <path d="M400 500 C 220 520, 140 400, 165 230" stroke="#b7791f" stroke-width="1.5" fill="none" stroke-dasharray="5 4" marker-end="url(#a2)"/>
+    <text x="112" y="525" font-size="12.5" fill="#b7791f">보류, 반려면 다시 기획으로</text>
+  </svg>
+  <div class="proposal" style="margin-top:16px"><b>Knotted를 거치지 않는 경우</b> 화면을 보며 정할 일이 아니거나 백엔드 작업이면, 지금처럼 터미널에서 하네스로 노션 검토 문서를 만들고 컨펌받아 구현한다.</div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+  <h2><span class="num">4</span>지금과 비교</h2>
+  <p class="desc">회색 줄이 그어진 단계가 Knotted를 쓰면 사라진다. 같은 화면을 두 번 만들고, 같다는 걸 증명하던 일이다.</p>
+  <div class="card">
+  <svg viewBox="0 0 1000 300" role="img" aria-label="지금과 Knotted 비교">
+    <g font-size="13.5">
+      <text x="0" y="28" font-size="15" font-weight="700" fill="#5e5c57">지금</text>
+      <g transform="translate(0,42)">
+        <rect x="0" y="0" width="125" height="64" rx="10" fill="#fff" stroke="#e4e2dd"/><text x="62" y="28" text-anchor="middle" font-weight="700">기획 문서</text><text x="62" y="48" text-anchor="middle" fill="#5e5c57">노션, 글만</text>
+        <rect x="140" y="0" width="125" height="64" rx="10" fill="#fff" stroke="#e4e2dd"/><text x="202" y="28" text-anchor="middle" font-weight="700">1차 컨펌</text><text x="202" y="48" text-anchor="middle" fill="#5e5c57">글만 보고</text>
+        <rect x="280" y="0" width="125" height="64" rx="10" fill="#f4f3f1" stroke="#d6d3cc"/><text x="342" y="28" text-anchor="middle" font-weight="700" fill="#9a978f">Figma 디자인</text><text x="342" y="48" text-anchor="middle" fill="#9a978f">유월만 그림</text><line x1="290" y1="32" x2="395" y2="32" stroke="#b5b2aa" stroke-width="1.5"/>
+        <rect x="420" y="0" width="125" height="64" rx="10" fill="#fff" stroke="#e4e2dd"/><text x="482" y="28" text-anchor="middle" font-weight="700">이슈</text><text x="482" y="48" text-anchor="middle" fill="#5e5c57">새로 만듦</text>
+        <rect x="560" y="0" width="125" height="64" rx="10" fill="#f4f3f1" stroke="#d6d3cc"/><text x="622" y="28" text-anchor="middle" font-weight="700" fill="#9a978f">코드로 다시</text><text x="622" y="48" text-anchor="middle" fill="#9a978f">Figma 보고 재구현</text><line x1="570" y1="32" x2="675" y2="32" stroke="#b5b2aa" stroke-width="1.5"/>
+        <rect x="700" y="0" width="140" height="64" rx="10" fill="#f4f3f1" stroke="#d6d3cc"/><text x="770" y="28" text-anchor="middle" font-weight="700" fill="#9a978f">같은지 증명</text><text x="770" y="48" text-anchor="middle" fill="#9a978f">캡처 비교, E2E로 px</text><line x1="710" y1="32" x2="830" y2="32" stroke="#b5b2aa" stroke-width="1.5"/>
+        <rect x="855" y="0" width="145" height="64" rx="10" fill="#fff" stroke="#e4e2dd"/><text x="927" y="28" text-anchor="middle" font-weight="700">PR 승인</text><text x="927" y="48" text-anchor="middle" fill="#5e5c57">2차 컨펌</text>
+      </g>
+      <text x="0" y="176" font-size="15" font-weight="700" fill="#ff6b2c">Knotted</text>
+      <g transform="translate(0,190)">
+        <rect x="0" y="0" width="265" height="64" rx="10" fill="#fff1ea" stroke="#ff6b2c"/><text x="132" y="28" text-anchor="middle" font-weight="700">기획 + 시안을 함께</text><text x="132" y="48" text-anchor="middle" fill="#5e5c57">시안이 처음부터 Knot 코드</text>
+        <rect x="280" y="0" width="125" height="64" rx="10" fill="#fff1ea" stroke="#ff6b2c"/><text x="342" y="28" text-anchor="middle" font-weight="700">1차 컨펌</text><text x="342" y="48" text-anchor="middle" fill="#5e5c57">시안을 눌러 보며</text>
+        <rect x="420" y="0" width="125" height="64" rx="10" fill="#fff" stroke="#e4e2dd"/><text x="482" y="28" text-anchor="middle" font-weight="700">반영, 이슈</text><text x="482" y="48" text-anchor="middle" fill="#5e5c57">하네스 그대로</text>
+        <rect x="560" y="0" width="280" height="64" rx="10" fill="#fff" stroke="#e4e2dd"/><text x="700" y="28" text-anchor="middle" font-weight="700">로직, 테스트만 더하기</text><text x="700" y="48" text-anchor="middle" fill="#5e5c57">화면은 이미 있다. 다시 만들지 않는다</text>
+        <rect x="855" y="0" width="145" height="64" rx="10" fill="#fff" stroke="#6e56cf"/><text x="927" y="28" text-anchor="middle" font-weight="700">PR 자동</text><text x="927" y="48" text-anchor="middle" fill="#5e5c57">로직, 테스트 승인</text>
+      </g>
+    </g>
+  </svg>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+  <h2><span class="num">5</span>요소를 누르면 파일 위치가 나오는 길</h2>
+  <p class="desc">React 19는 컴포넌트의 소스 위치 정보를 내부에서 뺐다. 그래서 빌드할 때 요소에 직접 적어 둔다.</p>
+  <div class="card">
+  <svg viewBox="0 0 1000 200" role="img" aria-label="요소 정보 파이프라인">
+    <defs><marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8a877f"/></marker></defs>
+    <g font-size="13.5">
+      <rect x="0" y="30" width="220" height="130" rx="12" fill="#fff" stroke="#e4e2dd"/>
+      <text x="16" y="58" font-weight="700">1. 빌드할 때</text><text x="16" y="82" fill="#5e5c57">babel 플러그인이 JSX에</text><text x="16" y="102" fill="#5e5c57">이름과 파일:줄을 붙인다</text><text x="16" y="138" font-size="12" fill="#9a978f">시안 빌드에서만. 운영 번들 제외</text>
+      <rect x="260" y="30" width="220" height="130" rx="12" fill="#fff" stroke="#e4e2dd"/>
+      <text x="276" y="58" font-weight="700">2. iframe에 띄움</text><text x="276" y="82" fill="#5e5c57">Knot 화면이 실제 1440 폭</text><text x="276" y="102" fill="#5e5c57">Knot 스타일과 섞이지 않음</text>
+      <rect x="520" y="30" width="220" height="130" rx="12" fill="#fff" stroke="#e4e2dd"/>
+      <text x="536" y="58" font-weight="700">3. 누른 요소 읽기</text><text x="536" y="82" fill="#5e5c57">runtime이 가장 가까운</text><text x="536" y="102" fill="#5e5c57">data-knotted 요소를 찾음</text>
+      <rect x="780" y="30" width="220" height="130" rx="12" fill="#fff1ea" stroke="#ff6b2c"/>
+      <text x="796" y="58" font-weight="700" fill="#ff6b2c">4. 툴바에 표시</text><text x="796" y="82" fill="#5e5c57">디자인 시스템 이름</text><text x="796" y="102" fill="#5e5c57">코드, 파일:줄, props</text><text x="796" y="138" font-size="12" fill="#9a978f">AI에게 요청에 같이 실림</text>
+      <path d="M222 95 L256 95" stroke="#8a877f" stroke-width="1.5" marker-end="url(#a3)"/>
+      <path d="M482 95 L516 95" stroke="#8a877f" stroke-width="1.5" marker-end="url(#a3)"/>
+      <path d="M742 95 L776 95" stroke="#8a877f" stroke-width="1.5" marker-end="url(#a3)"/>
+    </g>
+  </svg>
+<pre><span class="c">// 빌드 전</span>
+&lt;Container aria-label="프로필 메뉴"&gt;
+
+<span class="c">// 시안 빌드 뒤</span>
+&lt;Container aria-label="프로필 메뉴"
+  <span class="k">data-knotted</span>="ProfileMenu"
+  <span class="k">data-source</span>="member/MemberProfileAvatar/ui/ProfileMenu.tsx:23"&gt;</pre>
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+  <h2><span class="num">6</span>무엇을 어디에 두나</h2>
+  <p class="desc">새로 만드는 저장소는 없다. 서버와 DB도 만들지 않는다.</p>
+  <div class="grid g3">
+    <div class="decision"><span class="chip k">Git</span><b>시안 코드, 도구 코드</b><span class="d">제안 브랜치와 frontend/knotted. 충돌과 버전은 브랜치가 맡는다</span></div>
+    <div class="decision"><span class="chip" style="background:var(--notion-soft);color:var(--notion)">노션</span><b>검토 문서, 확정 기록</b><span class="d">기획, 미리보기 링크, 상태, 컨펌한 사람, 날짜</span></div>
+    <div class="decision"><span class="chip" style="background:var(--preview-soft);color:var(--preview)">Cloudflare</span><b>미리보기 화면</b><span class="d">PR마다 정적 빌드. 노션 내용은 빌드할 때 함께 굽는다</span></div>
+    <div class="decision"><span class="chip" style="background:var(--git-soft);color:var(--git)">GitHub</span><b>PR, 승인 기록</b><span class="d">로직과 테스트 검토는 여기서</span></div>
+    <div class="decision"><span class="chip" style="background:#f1f0ee;color:#5e5c57">저장 안 함</span><b>수정 요청</b><span class="d">로컬 Knotted가 연결된 에이전트에게 채팅처럼 바로 보낸다</span></div>
+    <div class="decision"><span class="chip" style="background:#f1f0ee;color:#5e5c57">저장 안 함</span><b>요소 정보</b><span class="d">빌드할 때 요소에 붙어 있다</span></div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+  <h2><span class="num">7</span>열린 문제와 제안</h2>
+  <p class="desc">회의에서 정하지 못한 세 가지에 대한 제안이다. 팀 확인이 필요하다.</p>
+
+  <div class="card">
+    <span class="chip open">열린 문제 A</span>
+    <h3 style="margin:10px 0 4px">시안을 볼 때마다 체크아웃해야 하나</h3>
+    <p class="desc" style="margin:0 0 14px">시안은 제안 브랜치에 있다. 검토 문서를 열 때마다 브랜치를 바꾸면 안 된다.</p>
+    <svg viewBox="0 0 1000 200" role="img" aria-label="시안 보기 두 경로">
+      <defs><marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8a877f"/></marker></defs>
+      <g font-size="13.5">
+        <text x="0" y="40" font-weight="700">검토하는 사람 (유월)</text>
+        <rect x="200" y="14" width="170" height="44" rx="10" fill="#fff" stroke="#37352f"/><text x="285" y="41" text-anchor="middle">노션 검토 문서</text>
+        <rect x="420" y="14" width="200" height="44" rx="10" fill="#e8f2f5" stroke="#2f6f82"/><text x="520" y="41" text-anchor="middle">미리보기 주소를 연다</text>
+        <rect x="670" y="14" width="200" height="44" rx="10" fill="#e8f6ee" stroke="#2e9d62"/><text x="770" y="41" text-anchor="middle" fill="#2e9d62" font-weight="700">체크아웃 없음</text>
+        <path d="M372 36 L416 36" stroke="#8a877f" stroke-width="1.5" marker-end="url(#a4)"/><path d="M622 36 L666 36" stroke="#8a877f" stroke-width="1.5" marker-end="url(#a4)"/>
+        <text x="0" y="140" font-weight="700">작업하는 사람 (팀원)</text>
+        <rect x="200" y="114" width="170" height="44" rx="10" fill="#fff" stroke="#ff6b2c"/><text x="285" y="141" text-anchor="middle">로컬 Knotted</text>
+        <rect x="420" y="114" width="200" height="44" rx="10" fill="#fff1ea" stroke="#ff6b2c"/><text x="520" y="141" text-anchor="middle">git worktree로 따로 꺼냄</text>
+        <rect x="670" y="114" width="200" height="44" rx="10" fill="#e8f6ee" stroke="#2e9d62"/><text x="770" y="141" text-anchor="middle" fill="#2e9d62" font-weight="700">작업 폴더 그대로</text>
+        <path d="M372 136 L416 136" stroke="#8a877f" stroke-width="1.5" marker-end="url(#a4)"/><path d="M622 136 L666 136" stroke="#8a877f" stroke-width="1.5" marker-end="url(#a4)"/>
+      </g>
+    </svg>
+    <div class="proposal"><b>제안</b> 검토는 PR마다 배포되는 미리보기 주소로 하고, 노션 검토 문서에 그 주소를 붙인다. 작업자는 로컬 서버가 브랜치를 worktree로 꺼내 띄워서, 지금 작업 중인 폴더가 바뀌지 않는다.</div>
+  </div>
+
+  <div class="card">
+    <span class="chip open">열린 문제 B</span>
+    <h3 style="margin:10px 0 4px">Knotted를 고칠 때마다 PR 승인을 기다린다</h3>
+    <p class="desc" style="margin:0 0 14px">저장소 안에 두기로 해서, 도구 코드를 조금 고쳐도 FE 팀원 승인이 필요하다. 회의에서는 라벨로 자동 승인하자는 안이 나왔다.</p>
+    <svg viewBox="0 0 1000 230" role="img" aria-label="PR 두 종류 판단">
+      <defs><marker id="a5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8a877f"/></marker></defs>
+      <g font-size="13.5">
+        <rect x="0" y="90" width="140" height="50" rx="10" fill="#fff" stroke="#6e56cf"/><text x="70" y="120" text-anchor="middle" font-weight="700">PR 열림</text>
+        <polygon points="330,60 470,115 330,170 190,115" fill="#fff" stroke="#8a877f"/>
+        <text x="330" y="108" text-anchor="middle" font-weight="700">바뀐 파일이 전부</text><text x="330" y="128" text-anchor="middle" font-weight="700">frontend/knotted 안?</text>
+        <rect x="560" y="20" width="200" height="54" rx="10" fill="#e8f6ee" stroke="#2e9d62"/><text x="660" y="44" text-anchor="middle" font-weight="700" fill="#2e9d62">Actions가 자동 승인</text><text x="660" y="63" text-anchor="middle" fill="#5e5c57">도구 코드만 바꾼 PR</text>
+        <rect x="560" y="156" width="200" height="54" rx="10" fill="#fff" stroke="#6e56cf"/><text x="660" y="180" text-anchor="middle" font-weight="700">FE 팀원이 승인</text><text x="660" y="199" text-anchor="middle" fill="#5e5c57">기능 시안, 구현 PR</text>
+        <rect x="810" y="88" width="190" height="54" rx="10" fill="#fff" stroke="#e4e2dd"/><text x="905" y="120" text-anchor="middle" font-weight="700">develop에 머지</text>
+        <path d="M142 115 L186 115" stroke="#8a877f" stroke-width="1.5" marker-end="url(#a5)"/>
+        <path d="M430 90 C 480 60, 520 47, 556 47" stroke="#2e9d62" stroke-width="1.6" fill="none" marker-end="url(#a5)"/><text x="470" y="58" fill="#2e9d62" font-weight="700">예</text>
+        <path d="M430 140 C 480 170, 520 183, 556 183" stroke="#6e56cf" stroke-width="1.6" fill="none" marker-end="url(#a5)"/><text x="470" y="186" fill="#6e56cf" font-weight="700">아니오</text>
+        <path d="M762 47 C 790 50, 800 90, 808 104" stroke="#8a877f" stroke-width="1.5" fill="none" marker-end="url(#a5)"/>
+        <path d="M762 183 C 790 180, 800 140, 808 128" stroke="#8a877f" stroke-width="1.5" fill="none" marker-end="url(#a5)"/>
+      </g>
+    </svg>
+    <div class="proposal"><b>제안</b> 라벨 대신 바뀐 파일 경로로 판단한다. 라벨은 아무 PR에나 붙일 수 있지만, 경로 기준이면 다른 파일이 하나라도 섞이면 사람 승인으로 돌아간다. 기능 PR의 승인은 병목이 아니라 2차 확인이라 그대로 둔다. 저장소 설정에서 Actions의 PR 승인 허용을 켜야 해서 팀 동의가 필요하다.</div>
+  </div>
+
+  <div class="card">
+    <span class="chip open">열린 문제 C</span>
+    <h3 style="margin:10px 0 12px">어떤 형태로 내놓을까</h3>
+    <table>
+      <tr><th>후보</th><th>좋은 점</th><th>아쉬운 점</th></tr>
+      <tr><td><b>웹</b> (Cloudflare Pages)</td><td>Storybook 미리보기와 같은 방식이라 바로 된다. 주소만 열면 된다</td><td>로컬 작업은 따로 띄운다</td></tr>
+      <tr><td><b>데스크톱 앱</b></td><td>로컬 작업과 검토를 한 앱에서</td><td>앱 빌드와 배포를 새로 만든다</td></tr>
+      <tr><td><b>스킬</b></td><td>knot-feature에서 바로 Knotted를 시작한다</td><td>화면은 결국 웹이나 앱이 필요하다</td></tr>
+    </table>
+    <div class="proposal"><b>제안</b> 웹으로 먼저 시작하고, 스킬은 Knotted를 시작하는 입구로 쓴다. 데스크톱은 도넛 검토(11/19) 뒤에 정한다.</div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+  <h2><span class="num">8</span>고민한 것</h2>
+  <p class="desc">하루 전에 정한 npm 배포와 md 저장은 회의에서 뒤집혔다. 근거가 틀린 게 아니라 무게가 달랐다.</p>
+  <div class="card">
+    <table>
+      <tr><th>쟁점</th><th>회의 전</th><th>회의 뒤</th><th>이유</th></tr>
+      <tr><td>코드 위치</td><td class="before">개인 저장소, npm 배포</td><td><b>Knot 저장소 안</b></td><td>하네스와 코드 정본이 승인 병목보다 무거웠다. npm은 누구나 받는다</td></tr>
+      <tr><td>검토 문서</td><td class="before">.knotted md 파일</td><td><b>노션 검토 DB</b></td><td>md면 문서를 볼 때마다 브랜치를 바꿔야 한다</td></tr>
+      <tr><td>시안 저장</td><td>브랜치</td><td><b>브랜치</b> (압축 파일 안 기각)</td><td>시안을 복원하는 건 버전 관리를 다시 만드는 일</td></tr>
+      <tr><td>따로 배포</td><td>별도 앱</td><td><b>경로 기준 배포</b></td><td>frontend/knotted가 바뀔 때만 미리보기를 배포</td></tr>
+      <tr><td>범위</td><td>기획부터 확정까지</td><td><b>프론트와 디자인</b></td><td>만능 도구로 커질 걱정. 백엔드는 노션으로</td></tr>
+      <tr><td>상용화</td><td>처음부터 떼어 내기</td><td><b>나중에</b></td><td>폴더 하나에 모아 두면 나중에 떼어 낼 수 있다</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+  <h2><span class="num">9</span>폴더 구조</h2>
+  <p class="desc">Knotted 코드는 한 폴더에 모은다. 시안 파일만 기능 폴더 옆에 둔다.</p>
+<pre>frontend/
+  src/                          <span class="c">지금 Knot 코드</span>
+    modules/features/.../
+      ProfileMenu.tsx
+      <span class="k">ProfileMenu.draft.tsx</span>     <span class="c">시안 (제안 브랜치에만)</span>
+  <span class="k">knotted/</span>
+    shell/                      <span class="c">Knotted 화면: 제안함, 캔버스, 패널</span>
+    runtime/                    <span class="c">iframe 안에서 요소 찾기, 위치 재기</span>
+    babel/                      <span class="c">요소에 이름과 파일 위치 붙이기</span>
+    server/                     <span class="c">노션 읽기와 쓰기, 에이전트, 브랜치와 PR</span>
+  <span class="k">webpack.knotted.config.js</span>     <span class="c">기존 설정을 읽어 Knotted 엔트리를 추가</span>
+.github/workflows/
+  <span class="k">knotted-preview.yml</span>           <span class="c">제안 PR마다 미리보기 배포</span>
+  <span class="k">knotted-auto-approve.yml</span>      <span class="c">도구 코드만 바뀐 PR 자동 승인</span></pre>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+  <h2><span class="num">10</span>다음 순서</h2>
+  <ol class="steps">
+    <li><b>팀 확인</b><small>7절 제안 세 가지: 미리보기 주소, 경로 기준 자동 승인, 웹 먼저</small></li>
+    <li><b>기술 검증</b><small>Knot의 ProfileMenu 시안 하나를 frontend/knotted에서 iframe으로 띄우고, 누르면 파일 위치가 나오는지 확인</small></li>
+    <li><b>프로토타입 화면 옮기기</b><small>vlmbuyd/knotted의 화면을 frontend/knotted/shell로</small></li>
+    <li><b>워크플로 추가</b><small>미리보기 배포, 자동 승인</small></li>
+    <li><b>하네스 연결</b><small>knot-feature에 Knotted 단계 추가 (지금 디자인 서브 에이전트 자리)</small></li>
+  </ol>
+</section>
+
+<footer>출처: 11/12 회의록(팀 전용 디자인 툴 구조_저장소 위치, 배포 방식, 검토 문서 저장), Knotted 라이브러리 설계 노션 페이지. 프로토타입: github.com/vlmbuyd/knotted</footer>
+</div>
+</body>
+</html>
