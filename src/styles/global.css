@@ -1,0 +1,97 @@
+:root {
+  --bg-canvas: #0b0b0c;
+  --bg-panel: #131314;
+  --bg-elevated: #1b1b1c;
+  --bg-hover: #262628;
+  --border: #29292b;
+  --text-primary: #ededed;
+  --text-secondary: #99999e;
+  --text-tertiary: #66666b;
+  --accent: #ededed;
+  --accent-soft: rgba(255, 255, 255, 0.07);
+  --on-accent: #0a0a0b;
+  --success: #5ccc85;
+  --warning: #e6a833;
+  --danger: #e66661;
+  --danger-soft: rgba(230, 102, 97, 0.12);
+  --warning-soft: rgba(230, 168, 51, 0.12);
+  --selection: #ff6b2c;
+  --selection-soft: rgba(255, 107, 44, 0.14);
+  --pin-comment: #424245;
+  --radius-panel: 12px;
+  --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body {
+  background: #000;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+input, textarea { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+::selection { background: var(--selection-soft); }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #2c2c2f; border-radius: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* 공통 조각 */
+.k-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: 36px; padding: 0 14px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--bg-panel);
+  font-size: 14px; font-weight: 500; white-space: nowrap;
+  transition: background 0.12s;
+}
+.k-btn:hover { background: var(--bg-hover); }
+.k-btn:disabled { opacity: 0.45; cursor: default; }
+.k-btn--primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.k-btn--primary:hover { background: #fff; }
+.k-btn--sm { height: 30px; padding: 0 10px; font-size: 12px; border-radius: 8px; }
+.k-btn--ghost { border-color: transparent; background: transparent; }
+.k-btn--danger { color: var(--danger); }
+
+.k-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  height: 22px; padding: 0 8px; border-radius: 999px;
+  border: 1px solid var(--border); font-size: 12px; color: var(--text-secondary);
+  white-space: nowrap;
+}
+.k-tag-add { display: inline-flex; align-items: center; height: 18px; padding: 0 6px; border-radius: 4px; background: rgba(92, 204, 133, 0.9); color: #0a0a0b; font-size: 11px; font-weight: 600; }
+
+.k-panel {
+  background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius-panel);
+  overflow: hidden; display: flex; flex-direction: column; min-height: 0;
+}
+.k-panel__head {
+  display: flex; align-items: center; gap: 8px; height: 49px; padding: 0 12px 0 16px;
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.k-panel__body { flex: 1; overflow: auto; min-height: 0; }
+.k-label { font-size: 12px; color: var(--text-tertiary); }
+.k-muted { color: var(--text-secondary); }
+.k-faint { color: var(--text-tertiary); }
+.k-pop {
+  background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 14px;
+  box-shadow: var(--shadow-pop);
+}
+.k-input {
+  width: 100%; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px 14px; outline: none; resize: none;
+}
+.k-input:focus { border-color: #3a3a3d; }
+.k-segment { display: inline-flex; gap: 2px; padding: 4px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-canvas); }
+.k-segment button { height: 32px; padding: 0 14px; border-radius: 8px; color: var(--text-secondary); font-size: 14px; }
+.k-segment button[data-active="true"] { background: var(--bg-hover); color: var(--text-primary); font-weight: 600; }
+.k-segment button:hover { color: var(--text-primary); }
+.k-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; background: currentColor; }
+.spin { animation: kspin 0.9s linear infinite; }
+@keyframes kspin { to { transform: rotate(360deg); } }

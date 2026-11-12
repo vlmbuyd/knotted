@@ -1,0 +1,30 @@
+{
+  "name": "knotted",
+  "private": true,
+  "version": "0.0.1",
+  "description": "기획과 시안을 한 제안서로 엮어 확정하는 Knot 팀 도구 (프로토타입)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc -b --noEmit",
+    "preview": "vite preview"
+  },
+  "packageManager": "pnpm@10.33.2",
+  "dependencies": {
+    "lucide-react": "^1.72.0",
+    "pretendard": "^1.3.9",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.5",
+    "zustand": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "typescript": "~5.8.3",
+    "vite": "^6.4.6"
+  }
+}
