@@ -12,7 +12,7 @@ interface Card { title: string; id: string; rules: string[]; proposed?: boolean;
 
 const CARDS: Card[] = [
   { title: "프로필 메뉴", id: "AUTH-R17", proposed: true, rules: ["상단바 프로필 사진을 누르면 메뉴가 열린다.", "메뉴에는 로그아웃만 둔다. 내 정보 보기는 두지 않는다."], shot: { screen: "profile-menu-open", region: { x: 760, y: 20, w: 680 } } },
-  { title: "로그아웃 실패", id: "AUTH-R19", proposed: true, rules: ["실패하면 로그인과 화면을 그대로 두고 토스트로 알린다.", "문구: 로그아웃하지 못했어요. 다시 시도해 주세요."], shot: { screen: "logout-failed", region: { x: 400, y: 600, w: 680 } } },
+  { title: "로그아웃 실패", id: "AUTH-R19", proposed: true, rules: ["실패하면 로그인과 화면을 그대로 두고 토스트로 알린다.", "문구: 로그아웃하지 못했어요. 다시 시도해 주세요."], shot: { screen: "logout-failed", region: { x: 380, y: 720, w: 680 } } },
   { title: "녹음 중 로그아웃", id: "AUTH-R22", proposed: true, rules: ["녹음 중이면 녹음을 끝내고 로그아웃할지 먼저 묻는다.", "다른 곳에서 녹음 중이면 이 브라우저의 녹음만 멈춘다고 알린다."], shot: { screen: "recording-confirm", region: { x: 380, y: 360, w: 680 } } },
   { title: "로그인 만료", id: "ERR-07", rules: ["로그인이 만료되면 로그인 화면으로 보내고 토스트를 띄운다.", "문구: 로그인이 만료됐어요. 다시 로그인해 주세요."] },
   { title: "로그인 실패", id: "ERR-15", rules: ["로그인에 실패해 돌아오면 공통 에러 페이지의 로그인 실패 화면을 보여 준다."] },
